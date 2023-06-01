@@ -40,8 +40,8 @@ public class KenwoodRadio: IGpsDevice, IDisposable
         _serialPort.NewLine = "\r";
         
         // Set the read/write timeouts
-        _serialPort.ReadTimeout = 500;
-        _serialPort.WriteTimeout = 500;
+        _serialPort.ReadTimeout = _config.GetValue<int>("GPS:ReadTimeout", 1000);
+        _serialPort.WriteTimeout = _config.GetValue<int>("GPS:WriteTimeout", 1000);;
 
         _serialPort.RtsEnable = true;
         

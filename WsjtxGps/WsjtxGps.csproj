@@ -4,8 +4,12 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Version>1.0.0</Version>
         <RuntimeIdentifiers>win10-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>false</SelfContained>
+        <RepositoryUrl>https://github.com/jeffu231/WsjtxGps</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -18,11 +22,9 @@
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
-        
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CoordinateSharp" Version="2.18.1.1" />
         <PackageReference Include="MaidenheadLib" Version="1.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />

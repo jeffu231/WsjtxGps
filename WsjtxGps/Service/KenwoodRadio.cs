@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO.Ports;
 using System.Text;
 using MaidenheadLib;
+using WsjtxGps.Util;
 
 namespace WsjtxGps.Service;
 
@@ -64,11 +65,11 @@ public class KenwoodRadio: IGpsDevice, IDisposable
         catch (Exception e)
         {
             _logger.LogCritical(e,"An unrecoverable error opening the serial port occured");
-            throw;
+            return Task.FromException<Exception>(e);
         }
 
         var poll = _config.GetValue<int>("GPS:Poll", 30);
-        _timer = new Timer(RequestLocation, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+        _timer = new Timer(RequestLocation, null, TimeSpan.Zero, TimeSpan.FromSeconds(poll));
         return Task.CompletedTask;
     }
     
@@ -139,27 +140,29 @@ public class KenwoodRadio: IGpsDevice, IDisposable
 
     private void ParseLocation(string response)
     {
+        //GDAT 00000000,000000000,000000,000000,0000,000,------,0
         _logger.LogDebug("Serial Response: {Response}", response);
         var message = response.Substring(5, response.Length - 5);
         var data = message.Split(',');
         if (data.Length == 8 && data[7] == "1")
         {
-            var latitude = Convert.ToDouble(data[0]);
-            var longitude = Convert.ToDouble(data[1]);
-            var locator = MaidenheadLocator.LatLngToLocator(latitude, longitude);
+
+            var coord = ParseCoordinates(data[0], data[1]);
+            
+            var locator = MaidenheadLocator.LatLngToLocator(coord.lat, coord.lon);
 
             var dateSuccess = DateTime.TryParseExact("20" + data[2] + data[3], DatePattern,
                 CultureInfo.CurrentCulture, DateTimeStyles.None, out var dateTime);
 
-            _logger.LogDebug("Lat:{Lat}", latitude);
-            _logger.LogDebug("Long:{Long}", longitude);
+            _logger.LogDebug("Lat:{Lat}", coord.lat);
+            _logger.LogDebug("Long:{Long}", coord.lon);
             _logger.LogDebug("Time:{Date}", dateTime);
             _logger.LogDebug("Grid: {Locator}", locator);
             
             var location = new Location()
             {
-                Longitude = longitude,
-                Latitude = latitude,
+                Longitude = coord.lon,
+                Latitude = coord.lat,
                 Grid = locator??_defaultGrid,
                 TimeStamp = dateSuccess ? dateTime : DateTime.Now
             };
@@ -203,4 +206,31 @@ public class KenwoodRadio: IGpsDevice, IDisposable
     {
         _timer?.Dispose();
     }
+
+    private (double lat, double lon) ParseCoordinates(string latitude, string longitude)
+    {
+        var latDeg = Convert.ToInt32(latitude.Substring(0, 2));
+        var latMin = Convert.ToInt32(latitude.Substring(2, 2));
+        var latSec = Convert.ToInt32(latitude.Substring(4, 3)) * .001d * 60;
+        var northSouth = Convert.ToInt32(latitude.Substring(7, 1));
+        if (northSouth == 1)
+        {
+            latDeg *= -1;
+        }
+            
+        var longDeg = Convert.ToInt32(longitude.Substring(0, 3));
+        var longMin = Convert.ToInt32(longitude.Substring(3, 2));
+        var longSec = Convert.ToInt32(longitude.Substring(5, 3)) * .001d * 60;
+        var eastWest = Convert.ToInt32(longitude.Substring(8, 1));
+        if (eastWest == 1)
+        {
+            longDeg *= -1;
+        }
+            
+        var lat = Coordinates.ConvertToDecimal(latDeg, latMin, latSec);
+        var lon = Coordinates.ConvertToDecimal(longDeg, longMin, longSec);
+        
+        return (lat, lon);
+    }
+    
 }

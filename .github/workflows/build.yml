@@ -1,0 +1,81 @@
+name: "Publish Release"
+
+on: 
+  push:
+    tags:
+      - "v*"
+
+env:
+  WIN_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/win10-x64/publish/
+  LINUX_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/linux-x64/publish/
+  OSX_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/osx-x64/publish/
+  OSX_ARM_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/osx-arm64/publish/
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+          source-url: https://nuget.pkg.github.com/jeffu231/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Display dotnet version
+        run: dotnet --version
+      - name: Install Dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore
+      - name: Publish win10-x64
+        run: dotnet publish -c Release -r win10-x64
+      - name: Publish linux-x64
+        run: dotnet publish -c Release -r linux-x64
+      - name: Publish osx-x64
+        run: dotnet publish -c Release -r osx-x64
+      - name: Publish osx-arm64
+        run: dotnet publish -c Release -r osx-arm64
+      - name: Create win10-x64 zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ env.WIN_OUTPUT_PATH }}
+          dest: WsjtxGps-win10-x64.zip
+      - name: Create linux-x64 zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ env.LINUX_OUTPUT_PATH }}
+          dest: WsjtxGps-linux-x64.zip
+      - name: Create osx-x64 zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ env.OSX_OUTPUT_PATH }}
+          dest: WsjtxGps-osx-x64.zip
+      - name: Create osx-arm64 zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ env.OSX_ARM_OUTPUT_PATH }}
+          dest: WsjtxGps-osx-arm64.zip
+          
+      - name: Initialize Release
+        uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release assets
+        uses: csexton/release-asset-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pattern: "*.zip"
+          release-url: ${{ steps.create_release.outputs.upload_url }}

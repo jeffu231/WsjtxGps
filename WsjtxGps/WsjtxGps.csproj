@@ -4,8 +4,8 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Version>1.2.0</Version>
-        <RuntimeIdentifiers>win10-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
+        <Version>1.2.1</Version>
+        <RuntimeIdentifiers>win10-x64;osx-x64;osx-arm64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>false</SelfContained>
         <RepositoryUrl>https://github.com/jeffu231/WsjtxGps</RepositoryUrl>

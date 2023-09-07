@@ -23,6 +23,8 @@ on:
 env:
   WIN_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/win10-x64/publish/
   LINUX_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/linux-x64/publish/
+  LINUX_ARM_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/linux-arm/publish/
+  LINUX_ARM64_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/linux-arm64/publish/
   OSX_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/osx-x64/publish/
   OSX_ARM_OUTPUT_PATH: WsjtxGps/bin/Release/net7.0/osx-arm64/publish/
   
@@ -52,6 +54,10 @@ jobs:
         run: dotnet publish -c Release -r win10-x64
       - name: Publish linux-x64
         run: dotnet publish -c Release -r linux-x64
+      - name: Publish linux-arm
+        run: dotnet publish -c Release -r linux-arm
+      - name: Publish linux-arm64
+        run: dotnet publish -c Release -r linux-arm64
       - name: Publish osx-x64
         run: dotnet publish -c Release -r osx-x64
       - name: Publish osx-arm64
@@ -66,6 +72,16 @@ jobs:
         with:
           files: ${{ env.LINUX_OUTPUT_PATH }}
           dest: WsjtxGps-linux-x64.zip
+      - name: Create linux-arm zip file
+        uses: papeloto/action-zip@v1.1
+        with:
+          files: ${{ env.LINUX_ARM_OUTPUT_PATH }}
+          dest: WsjtxGps-linux-arm.zip
+      - name: Create linux-arm64 zip file
+        uses: papeloto/action-zip@v1.1
+        with:
+          files: ${{ env.LINUX_ARM64_OUTPUT_PATH }}
+          dest: WsjtxGps-linux-arm64.zip
       - name: Create osx-x64 zip file
         uses: papeloto/action-zip@v1.1
         with:

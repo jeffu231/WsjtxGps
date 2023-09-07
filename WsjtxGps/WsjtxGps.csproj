@@ -4,7 +4,7 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Version>1.1.0</Version>
+        <Version>1.2.0</Version>
         <RuntimeIdentifiers>win10-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>false</SelfContained>
@@ -25,6 +25,7 @@
     </PropertyGroup>
     
     <ItemGroup>
+        <PackageReference Include="GpsdClient" Version="1.0.1" />
         <PackageReference Include="MaidenheadLib" Version="1.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />

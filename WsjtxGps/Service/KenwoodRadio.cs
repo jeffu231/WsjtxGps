@@ -20,7 +20,7 @@ public class KenwoodRadio: IGpsDevice, IDisposable
         _logger = logger;
         _config = config;
         _serialPort = new SerialPort();
-        _defaultGrid = _config.GetValue<string>("GPS:DefaultGrid")??string.Empty;
+        _defaultGrid = _config.GetValue<string>("GPSSerial:DefaultGrid")??string.Empty;
     }
     
     public Task StartAsync(CancellationToken cancellationToken)
@@ -32,16 +32,16 @@ public class KenwoodRadio: IGpsDevice, IDisposable
             _logger.LogDebug("Port: {Name}", name);
         }
         
-        _serialPort.PortName = _config.GetValue<string>("GPS:Port") ?? "COM1";
-        _serialPort.BaudRate = _config.GetValue("GPS:Baud", 9600);
+        _serialPort.PortName = _config.GetValue<string>("GPSSerial:Port") ?? "COM1";
+        _serialPort.BaudRate = _config.GetValue("GPSSerial:Baud", 9600);
         _serialPort.DataBits = 8;
         _serialPort.Parity = Parity.None;
         _serialPort.StopBits = StopBits.One;
         _serialPort.NewLine = "\r";
         
         // Set the read/write timeouts
-        _serialPort.ReadTimeout = _config.GetValue<int>("GPS:ReadTimeout", 1000);
-        _serialPort.WriteTimeout = _config.GetValue<int>("GPS:WriteTimeout", 1000);;
+        _serialPort.ReadTimeout = _config.GetValue<int>("GPSSerial:ReadTimeout", 1000);
+        _serialPort.WriteTimeout = _config.GetValue<int>("GPSSerial:WriteTimeout", 1000);;
 
         _serialPort.RtsEnable = true;
         
@@ -68,7 +68,7 @@ public class KenwoodRadio: IGpsDevice, IDisposable
             return Task.FromException<Exception>(e);
         }
 
-        var poll = _config.GetValue<int>("GPS:Poll", 30);
+        var poll = _config.GetValue<int>("GPSSerial:Poll", 30);
         _timer = new Timer(RequestLocation, null, TimeSpan.Zero, TimeSpan.FromSeconds(poll));
         return Task.CompletedTask;
     }

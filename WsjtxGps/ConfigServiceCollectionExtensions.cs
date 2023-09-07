@@ -8,7 +8,17 @@ public static class ConfigServiceCollectionExtensions
     public static IServiceCollection ConfigureServicesFromConfig(this IServiceCollection services,
         IConfiguration config)
     {
-        services.AddSingleton<IGpsDevice, KenwoodRadio>();
+        var gpsType = config.GetValue<string>("GPS:Type")??"gpsd";
+
+        if ("gpsd".Equals(gpsType))
+        {
+            services.AddSingleton<IGpsDevice, GpsdDevice>();
+        }
+        else
+        {
+            services.AddSingleton<IGpsDevice, KenwoodRadio>();
+        }
+        
         services.AddHostedService<IGpsDevice>(provider => provider.GetRequiredService<IGpsDevice>());
 
         List<Listener> listeners = new List<Listener>();

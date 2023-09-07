@@ -9,4 +9,9 @@ public struct Location
     public double Longitude { get; init; }
 
     public DateTime TimeStamp { get; init; }
+
+    public override string ToString()
+    {
+        return $"Lat:{Latitude}, Long:{Longitude}, Grid:{Grid}, Timestamp:{TimeStamp}";
+    }
 }

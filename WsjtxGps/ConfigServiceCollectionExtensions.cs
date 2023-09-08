@@ -30,14 +30,19 @@ public static class ConfigServiceCollectionExtensions
         foreach (var listener in listeners)
         {
             Console.Out.WriteLine($"Adding listener on port {listener.Port}");
-            services.AddSingleton<IHostedService>(x => new WsjtxDataProvider(
+            
+            var provider = services.AddSingleton<IHostedService>(x => new WsjtxDataProvider(
                 x.GetRequiredService<ILogger<WsjtxDataProvider>>(),
                 x.GetRequiredService<IWsjtxClient>(),
                 listener));
         }
         
+        services.AddHostedService<Worker>(p => new Worker(
+            p.GetRequiredService<ILogger<Worker>>(),
+            p.GetRequiredService<IGpsDevice>(),
+            p.GetRequiredService<IServiceProvider>()
+        ));
         
-
         return services;
     }
 }

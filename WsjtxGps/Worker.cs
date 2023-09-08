@@ -8,18 +8,28 @@ namespace WsjtxGps;
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly IWsjtxDataProvider _wsjtxDataProvider;
+    private readonly List<IWsjtxDataProvider> _wsjtxDataProviders;
     private readonly IGpsDevice _gpsDevice;
+    private readonly IServiceProvider _provider;
 
-    public Worker(ILogger<Worker> logger, IWsjtxDataProvider wsjtxDataProvider, IGpsDevice gpsDevice)
+    public Worker(ILogger<Worker> logger, IGpsDevice gpsDevice, IServiceProvider provider)
     {
         _logger = logger;
-        _wsjtxDataProvider = wsjtxDataProvider;
         _gpsDevice = gpsDevice;
+        _provider = provider;
+        _wsjtxDataProviders = new List<IWsjtxDataProvider>();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogDebug("Starting GPS update worker");
+
+        var wsjtxDataProviders = _provider.GetServices<IHostedService>()
+            .Where(x => x is IWsjtxDataProvider).Cast<IWsjtxDataProvider>();
+        
+        _logger.LogDebug("Adding {Count} providers", wsjtxDataProviders.Count());
+        _wsjtxDataProviders.AddRange(wsjtxDataProviders);
+        
         _gpsDevice.LocationUpdated += GpsDeviceOnLocationUpdated;
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -29,30 +39,37 @@ public class Worker : BackgroundService
 
     private void GpsDeviceOnLocationUpdated(object? sender, LocationChangedEventArgs e)
     {
+        _logger.LogDebug("OnLocation Update for {Grid}", e.Location.Grid);
         if (!string.IsNullOrEmpty(e.Location.Grid) )
         {
-            foreach (var instance in _wsjtxDataProvider.Instances)
+            foreach (var wsjtxDataProvider in _wsjtxDataProviders)
             {
-                var status = _wsjtxDataProvider.Status(instance);
-                if (status != null)
+                _logger.LogDebug("Updating WSJTX Id:{Id}", wsjtxDataProvider.Id);
+                foreach (var instance in wsjtxDataProvider.Instances)
                 {
-                    _logger.LogDebug("Existing grid is {Grid} New grid is {NewGrid}", status.DeGrid, e.Location.Grid);
-                
-                    if (!status.DeGrid.Equals(e.Location.Grid, StringComparison.CurrentCultureIgnoreCase))
+                    var status = wsjtxDataProvider.Status(instance);
+                    if (status != null)
                     {
-                        _wsjtxDataProvider.SendMessage(new LocationMessage()
+                        _logger.LogDebug("Existing grid is {Grid} New grid is {NewGrid}", status.DeGrid, e.Location.Grid);
+                
+                        if (!status.DeGrid.Equals(e.Location.Grid, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            Id = instance,
-                            Locator = e.Location.Grid
-                        });
+                            wsjtxDataProvider.SendMessage(new LocationMessage()
+                            {
+                                Id = instance,
+                                Locator = e.Location.Grid
+                            });
+                        }
+                        else
+                        {
+                            _logger.LogDebug("Grid already set for instance {Instance}", instance);
+                        }
                     }
-                    else
-                    {
-                        _logger.LogDebug("Grid already set for instance {Instance}", instance);
-                    }
-                }
                 
+                }
             }
+            
+            
         }
         else
         {

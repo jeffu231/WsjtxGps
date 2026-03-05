@@ -40,6 +40,12 @@
             "section": "Work in Progress",
             "hidden": false
          }
-    ]
+    ],
+    "otherSection": "Miscellaneous",
+             "linkTemplates": {
+                   "issueLink": "https://github.com/jeffu231/WsjtxGps/issues/{issue}",
+                   "commitLink": "https://github.com/jeffu231/WsjtxGps/commit/{commitSha}",
+                   "versionTagLink": "https://github.com/jeffu231/WsjtxGps/compare/{previousTag}...{currentTag}"
+                 }
   }
 }

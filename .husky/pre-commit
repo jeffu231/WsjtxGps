@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo 'Amateur Radio Services'
+echo 'WsjtxGps Project'
 dotnet husky run --group pre-commit

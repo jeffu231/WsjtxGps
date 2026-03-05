@@ -150,8 +150,10 @@ jobs:
           dest: WsjtxGps-osx-arm64.zip
           
       - name: List files in the workspace
-          run: ls -lah
-          
+        if: steps.versionize.outcome == 'success'
+        run: | 
+          ls -lah
+            
       - name: Create Release
         if: steps.versionize.outcome == 'success'
         uses: softprops/action-gh-release@v2

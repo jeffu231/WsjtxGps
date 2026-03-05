@@ -83,7 +83,7 @@ jobs:
       - name: Build
         run: dotnet build -c Release --no-restore
         
-      - name: Publish win10-x64
+      - name: Publish win-x64
         if: steps.versionize.outcome == 'success'
         run: dotnet publish -c Release -r win-x64
         

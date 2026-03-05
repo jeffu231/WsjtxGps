@@ -34,7 +34,7 @@ public class GpsdDevice:IGpsDevice
         _gpsService = new GpsService(info);
         
         _gpsService.RegisterTpvDataEvent(GpsdServiceOnLocationChanged);
-        Connect();
+        _ = Connect();
         _logger.LogInformation("GPSD service started");
         return Task.CompletedTask;
     }

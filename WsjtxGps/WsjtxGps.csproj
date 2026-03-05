@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Version>1.2.2</Version>
-        <RuntimeIdentifiers>win10-x64;osx-x64;osx-arm64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>false</SelfContained>
         <RepositoryUrl>https://github.com/jeffu231/WsjtxGps</RepositoryUrl>
